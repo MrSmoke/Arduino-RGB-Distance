@@ -35,15 +35,15 @@ void setup()
 
 void loop()
 {
+    int rgb[3] = {0, 0, 0};
     double distance = getDistance();
 
-    if (distance > MAX_DISTANCE)
-        return;
-
-    double distancePercent = distance / MAX_DISTANCE;
-
-    int rgb[3] = {0, 0, 0};
-    calculateRGB(distancePercent, rgb);
+    //if the distance is within our max, calculate our values
+    if (distance < MAX_DISTANCE)
+    {
+        double distancePercent = distance / MAX_DISTANCE;
+        calculateRGB(distancePercent, rgb);
+    }
 
     setRGB(rgb);
 }
