@@ -1,12 +1,3 @@
-#include <stdio.h>
-
-void calculateRGB(double distancePercent, int rgb[2]);
-int triangle(int position, int amplitude, int period);
-int triangle2(int position, int amplitude);
-double getDistance();
-void method_tweeny(double distancePercent, int rgb[2]);
-void method_simpleFade(double distancePercent, int rgb[2]);
-
 //pins
 #define PIN_TRIGGER 9
 #define PIN_ECHO 10
@@ -87,7 +78,7 @@ double getDistance()
     return duration * 0.034 / 2;
 }
 
-void calculateRGB(double distancePercent, int rgb[2])
+void calculateRGB(double distancePercent, int rgb[])
 {
     method_simpleFade(distancePercent, rgb);
 }
@@ -121,7 +112,7 @@ int triangle2(int position, int amplitude)
 //Methods
 
 //some fluid tweening type deal
-void method_tweeny(double distancePercent, int rgb[2])
+void method_tweeny(double distancePercent, int rgb[])
 {
     int maxSteps = 255 * 2;
 
@@ -135,7 +126,7 @@ void method_tweeny(double distancePercent, int rgb[2])
 }
 
 //basic fading between colours
-void method_simpleFade(double distancePercent, int rgb[2])
+void method_simpleFade(double distancePercent, int rgb[])
 {
     int maxSteps = 255 * 2;
 
