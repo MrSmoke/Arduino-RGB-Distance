@@ -9,6 +9,9 @@
 //max distance in cm
 #define MAX_DISTANCE 30
 
+// the amount of distances to keep in the buffer for average calculations
+#define DISTANCE_BUFFER_SIZE 10
+
 // what to do when the distance is greater than MAX_DISTANCE
 // 0 = off
 // 1 = last known colour
@@ -19,10 +22,22 @@
 #define BLUE_OFFSET -0.5
 #define RED_OFFSET 0
 
+// the colour when off
 int const rgbOff[3] = {0, 0, 0};
+
+float *_distanceBuffer;
+float _dbSum = 0;
+int _dbIndex = 0;
+int _dbCount = 0;
 
 void setup()
 {
+    _distanceBuffer = (float *)malloc(DISTANCE_BUFFER_SIZE * sizeof(float));
+    for (int i = 0; i < DISTANCE_BUFFER_SIZE; i++)
+    {
+        _distanceBuffer[i] = 0.0;
+    }
+
     pinMode(PIN_TRIGGER, OUTPUT);
     pinMode(PIN_ECHO, INPUT);
 
@@ -33,25 +48,26 @@ void setup()
 
 void loop()
 {
-    double distance = getDistance();
+    addDistance(getDistance());
+    float distanceAvg = getDistanceAverage();
 
     //if the distance is within our max, calculate our values
-    if (distance < MAX_DISTANCE)
+    if (distanceAvg <= MAX_DISTANCE)
     {
         int rgb[3] = {0, 0, 0};
-        double distancePercent = distance / MAX_DISTANCE;
+        double distancePercent = distanceAvg / MAX_DISTANCE;
         calculateRGB(distancePercent, rgb);
         setRGB(rgb);
     }
     else
     {
-        switch(MAX_DISTANCE_COLOUR_MODE)
+        switch (MAX_DISTANCE_COLOUR_MODE)
         {
-            case 0:
-                setRGB(rgbOff);
-                break;
-            case 1:
-                break;
+        case 0:
+            setRGB(rgbOff);
+            break;
+        case 1:
+            break;
         }
     }
 }
@@ -76,6 +92,27 @@ double getDistance()
 
     //convert to cm
     return duration * 0.034 / 2;
+}
+
+void addDistance(const double value)
+{
+    _dbSum -= _distanceBuffer[_dbIndex];
+    _distanceBuffer[_dbIndex++] = value;
+    _dbSum += value;
+
+    if (_dbIndex == DISTANCE_BUFFER_SIZE)
+        _dbIndex = 0;
+
+    if (_dbCount < DISTANCE_BUFFER_SIZE)
+        ++_dbCount;
+}
+
+float getDistanceAverage()
+{
+    if (_dbCount == 0)
+        return 0;
+
+    return _dbSum / _dbCount;
 }
 
 void calculateRGB(double distancePercent, int rgb[])
