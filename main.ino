@@ -18,10 +18,17 @@ void method_simpleFade(double distancePercent, int rgb[2]);
 //max distance in cm
 #define MAX_DISTANCE 30
 
+// what to do when the distance is greater than MAX_DISTANCE
+// 0 = off
+// 1 = last known colour
+#define MAX_DISTANCE_COLOUR_MODE 0
+
 //offsets
 #define GREEN_OFFSET 0.5
 #define BLUE_OFFSET -0.5
 #define RED_OFFSET 0
+
+int const rgbOff[3] = {0, 0, 0};
 
 void setup()
 {
@@ -35,20 +42,30 @@ void setup()
 
 void loop()
 {
-    int rgb[3] = {0, 0, 0};
     double distance = getDistance();
 
     //if the distance is within our max, calculate our values
     if (distance < MAX_DISTANCE)
     {
+        int rgb[3] = {0, 0, 0};
         double distancePercent = distance / MAX_DISTANCE;
         calculateRGB(distancePercent, rgb);
+        setRGB(rgb);
     }
-
-    setRGB(rgb);
+    else
+    {
+        switch(MAX_DISTANCE_COLOUR_MODE)
+        {
+            case 0:
+                setRGB(rgbOff);
+                break;
+            case 1:
+                break;
+        }
+    }
 }
 
-void setRGB(int rgb[2])
+void setRGB(const int rgb[])
 {
     analogWrite(PIN_RED, rgb[0]);
     analogWrite(PIN_GREEN, rgb[1]);
